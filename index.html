@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nadeline AI</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: black;
+      font-family: 'Poppins', sans-serif;
+      color: #fff;
+    }
+
+    #intro {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      color: #FFD700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      z-index: 10;
+      animation: glitchFade 4s forwards;
+    }
+
+    @keyframes glitchFade {
+      0% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 3em;
+      color: #FFD700;
+      text-shadow: 0 0 15px #FFD700aa;
+    }
+
+    .chat-container {
+      max-width: 800px;
+      margin: 100px auto;
+      padding: 30px;
+      background: rgba(10, 10, 10, 0.95);
+      border: 2px solid #FFD70055;
+      border-radius: 20px;
+      box-shadow: 0 0 30px #FFD70055;
+      backdrop-filter: blur(8px);
+    }
+
+    .chat-box {
+      max-height: 500px;
+      overflow-y: auto;
+      background-color: #111;
+      padding: 20px;
+      border-radius: 15px;
+      border: 1px solid #FFD70033;
+      margin-bottom: 20px;
+      scroll-behavior: smooth;
+    }
+
+    .user-msg {
+      background: #111;
+      padding: 10px 15px;
+      border-radius: 12px;
+      color: #00FFF7;
+      font-weight: 600;
+      margin: 10px 0;
+      border-left: 3px solid #00FFF7;
+    }
+
+    .bot-msg {
+      background: #1a1a1a;
+      padding: 10px 15px;
+      border-radius: 12px;
+      color: #FFD700;
+      font-weight: 600;
+      margin: 10px 0;
+      border-left: 3px solid #FFD700;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    input[type="text"] {
+      width: 70%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid #FFD700;
+      background-color: #000;
+      color: #FFD700;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: #FFD700;
+      color: #000;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #ffcc00;
+    }
+
+    canvas#particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <div id="intro">Waking up systems...</div>
+  <canvas id="particles-js"></canvas>
+  <h1>Nadeline AI</h1>
+  <div class="chat-container">
+    <div class="chat-box" id="chat-box"></div>
+    <div class="input-group">
+      <input type="text" id="user-input" placeholder="Ask Nadeline anything..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: "#FFD700" },
+        shape: { type: "circle" },
+        opacity: { value: 0.5, random: true },
+        size: { value: 4, random: true },
+        move: { enable: true, speed: 1 }
+      }
+    });
+
+    const chatBox = document.getElementById('chat-box');
+    const userInput = document.getElementById('user-input');
+
+    const nadelineScript = {
+      "eco-wheels": "Eco-Wheels is Nadeline's green transport system using ZEVs and metro transit to reduce pollution.",
+      "radiant acres": "Radiant Acres is the solar garden of Nadeline providing clean solar energy to the city.",
+      "green sky towers": "Green Sky Towers use microalgae roofs for insulation and PBK7 for sustainable construction.",
+      "nad guard": "NAD GUARD is an AI system with Heli Bot and NAD Bot that monitors the environment and infrastructure."
+    };
+
+    function appendMessage(message, isUser = false) {
+      const msg = document.createElement('div');
+      msg.className = isUser ? 'user-msg' : 'bot-msg';
+      msg.textContent = message;
+      chatBox.appendChild(msg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function getScriptAnswer(input) {
+      const lowerInput = input.toLowerCase();
+      for (const key in nadelineScript) {
+        if (lowerInput.includes(key)) {
+          return nadelineScript[key];
+        }
+      }
+      return null;
+    }
+
+    async function fetchOpenAIResponse(prompt) {
+      const apiKey = "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";
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [
+            { role: "system", content: "You are Nadeline AI, a futuristic assistant that answers questions with smart insights and also uses custom knowledge when asked about Nadeline city." },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.7
+        })
+      });
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || "Sorry, I couldn’t process that.";
+    }
+
+    async function sendMessage() {
+      const input = userInput.value.trim();
+      if (!input) return;
+      appendMessage(input, true);
+      userInput.value = "";
+
+      const scriptResponse = getScriptAnswer(input);
+      if (scriptResponse) {
+        setTimeout(() => appendMessage(scriptResponse), 400);
+      } else {
+        const aiResponse = await fetchOpenAIResponse(input);
+        setTimeout(() => appendMessage(aiResponse), 600);
+      }
+    }
+
+    userInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
+</body>
+</html>
